@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador de Contratos | Nodus Flex Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <style>
+        :root {
+            --primary: #1a3a5c;
+            --primary-dark: #0f2744;
+            --primary-light: #2d5a87;
+            --accent: #f4a261;
+            --accent-light: #f6b37f;
+            --accent-dark: #e08a3c;
+            --bg-dark: #0a1929;
+            --bg-card: #132f4c;
+            --bg-card-hover: #1e4976;
+            --text: #ffffff;
+            --text-muted: #94a3b8;
+            --border: #1e4976;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #f87171;
+            --gradient-bg: linear-gradient(135deg, #0a1929 0%, #1a3a5c 50%, #0f2744 100%);
+            --gradient-accent: linear-gradient(135deg, #f4a261 0%, #e08a3c 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--gradient-bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Background pattern */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.5;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(244, 162, 97, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(244, 162, 97, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(26, 58, 92, 0.3) 0%, transparent 60%);
+        }
+
+        header {
+            padding: 1rem 2rem;
+            background: rgba(10, 25, 41, 0.95);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo img {
+            height: 50px;
+            width: auto;
+        }
+
+        .logo-text {
+            border-left: 2px solid var(--accent);
+            padding-left: 1rem;
+        }
+
+        .logo-text h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: 0.5px;
+        }
+
+        .logo-text span {
+            font-size: 0.75rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            border: 1px solid var(--border);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--error);
+            transition: all 0.3s;
+        }
+
+        .status-dot.connected {
+            background: var(--success);
+            box-shadow: 0 0 12px var(--success);
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            padding: 1rem 0;
+        }
+
+        .hero-section h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-section p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+            box-shadow: 0 8px 30px rgba(244, 162, 97, 0.15);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 1rem;
+            background: var(--gradient-accent);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .feature-card h4 {
+            font-size: 1rem;
+            margin-bottom: 0.35rem;
+            font-weight: 600;
+        }
+
+        .feature-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .setup-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 1.75rem;
+            border: 1px solid var(--border);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-icon {
+            width: 46px;
+            height: 46px;
+            background: var(--gradient-accent);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--primary-dark);
+        }
+
+        .card-header h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .input {
+            flex: 1;
+            padding: 0.9rem 1.1rem;
+            background: var(--bg-dark);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(244, 162, 97, 0.2);
+        }
+
+        .input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn {
+            padding: 0.9rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-accent {
+            background: var(--gradient-accent);
+            color: var(--primary-dark);
+        }
+
+        .btn-accent:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(244, 162, 97, 0.4);
+        }
+
+        .btn-accent:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .message {
+            margin-top: 1rem;
+            padding: 0.85rem 1rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .message.show { display: flex; align-items: center; gap: 0.5rem; }
+        .message.success { background: rgba(74, 222, 128, 0.15); color: var(--success); }
+        .message.error { background: rgba(248, 113, 113, 0.15); color: var(--error); }
+        .message.loading { background: rgba(244, 162, 97, 0.15); color: var(--accent); }
+
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(10, 25, 41, 0.5);
+        }
+
+        .upload-zone:hover {
+            border-color: var(--accent);
+            background: rgba(244, 162, 97, 0.05);
+        }
+
+        .upload-zone.dragover {
+            border-color: var(--accent);
+            background: rgba(244, 162, 97, 0.1);
+            transform: scale(1.02);
+        }
+
+        .upload-zone.has-file {
+            border-color: var(--success);
+            background: rgba(74, 222, 128, 0.08);
+        }
+
+        .upload-icon {
+            width: 65px;
+            height: 65px;
+            margin: 0 auto 1rem;
+            background: var(--bg-card);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--border);
+        }
+
+        .upload-icon svg {
+            width: 30px;
+            height: 30px;
+            fill: var(--accent);
+        }
+
+        .upload-zone h4 {
+            font-size: 1.05rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .upload-zone p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .file-badges {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            padding: 0.4rem 0.9rem;
+            background: var(--bg-card);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: 500;
+            border: 1px solid var(--border);
+        }
+
+        .uploaded-file {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.25rem;
+            background: var(--bg-dark);
+            border-radius: 14px;
+            margin-top: 1.25rem;
+            border: 1px solid var(--success);
+        }
+
+        .file-icon-box {
+            width: 48px;
+            height: 48px;
+            background: var(--success);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-icon-box svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--primary-dark);
+        }
+
+        .file-details { flex: 1; }
+
+        .file-details h5 {
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+            font-weight: 600;
+        }
+
+        .file-details span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .remove-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(248, 113, 113, 0.15);
+            border: none;
+            border-radius: 10px;
+            color: var(--error);
+            cursor: pointer;
+            font-size: 1.25rem;
+            transition: all 0.2s;
+        }
+
+        .remove-btn:hover {
+            background: rgba(248, 113, 113, 0.25);
+        }
+
+        #fileInput { display: none; }
+
+        .analyze-section {
+            text-align: center;
+            margin: 2.5rem 0;
+        }
+
+        .analyze-btn {
+            padding: 1.1rem 3rem;
+            background: var(--gradient-accent);
+            border: none;
+            border-radius: 14px;
+            color: var(--primary-dark);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .analyze-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .analyze-btn:hover::before { left: 100%; }
+
+        .analyze-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(244, 162, 97, 0.5);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .analyze-btn.loading {
+            background: var(--bg-card);
+            color: var(--text);
+        }
+
+        .results-section {
+            background: var(--bg-card);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .results-header {
+            padding: 1.25rem 1.75rem;
+            background: var(--bg-dark);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .results-header h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .results-header h2 svg {
+            fill: var(--accent);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .tab {
+            padding: 0.6rem 1.2rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+
+        .tab.active {
+            background: var(--gradient-accent);
+            border-color: transparent;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .results-body {
+            padding: 1.75rem;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .stat-box {
+            background: var(--bg-dark);
+            border-radius: 14px;
+            padding: 1.25rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .stat-number {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 0.35rem;
+        }
+
+        .stat-box.errors .stat-number { color: var(--error); }
+        .stat-box.warnings .stat-number { color: var(--warning); }
+        .stat-box.info .stat-number { color: var(--accent); }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .issues-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .issue-card {
+            background: var(--bg-dark);
+            border-radius: 14px;
+            padding: 1.35rem;
+            border-left: 4px solid var(--error);
+        }
+
+        .issue-card.warning { border-left-color: var(--warning); }
+        .issue-card.info { border-left-color: var(--accent); }
+
+        .issue-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .issue-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .issue-card .issue-badge { background: rgba(248, 113, 113, 0.2); color: var(--error); }
+        .issue-card.warning .issue-badge { background: rgba(251, 191, 36, 0.2); color: var(--warning); }
+        .issue-card.info .issue-badge { background: rgba(244, 162, 97, 0.2); color: var(--accent); }
+
+        .issue-location {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .issue-card h4 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .issue-card > p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        .suggestion-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            border: 1px solid var(--border);
+        }
+
+        .suggestion-box strong { color: var(--success); }
+
+        .document-view {
+            background: var(--bg-dark);
+            border-radius: 14px;
+            padding: 1.5rem;
+            font-size: 0.9rem;
+            line-height: 1.9;
+            max-height: 500px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            border: 1px solid var(--border);
+        }
+
+        .download-row { margin-bottom: 1.25rem; }
+
+        .success-message {
+            text-align: center;
+            padding: 3rem;
+            color: var(--success);
+        }
+
+        .success-message svg {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 1rem;
+            fill: var(--success);
+        }
+
+        .success-message h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .success-message p { color: var(--text-muted); }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid transparent;
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        @media (max-width: 900px) {
+            .setup-grid { grid-template-columns: 1fr; }
+            .features-row { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 600px) {
+            .stats-row { grid-template-columns: 1fr; }
+            .tabs { width: 100%; justify-content: center; flex-wrap: wrap; }
+            .header-content { flex-direction: column; gap: 1rem; }
+            .hero-section h2 { font-size: 1.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <img src="data:image/png;base64,UklGRnoYAABXRUJQVlA4WAoAAAAwAAAAaAEAYgEASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZBTFBIaBMAAA3wl+1/37b//92KwC4CewjsIoiCIC6CKAiiIqiGYAqCKAimIKiCYAqCOQgmI9gf2+PxWHW7R93r/TMiJgD/3///B8W+V+34u5TjPP+latWk8G/HVvUPMYZ8d9qx79H3SBkpx4+I0gp/sFNqOvt4R9pJqQa/H1uMrbrGGD4W2uDPb/Un6+9DO+kB/31Qah18/DAoh/ft7JOJ8rVG4083k/5k/YegdR3efXCLzrK1RuNdO7u2vv6UR5GbgwmSTQ7v3tlPJlWeXaHQxt+MWK1HkSt3tlXnUfD+yWSZxoBSX9dTrrY2oujtbsoS6T3KXR10qrQ2oPDhMGV59AoldyeT6syj+OHzJI5eoezmbFKNORCudloYvULpzdmk+tINA7YPXpRpg/Kb85RrqzfgdD4JMhowNmdVWx6kzUEL4sE57ExdadAOayeGBev+GmuqtTywLgsxbmjgdU0ZEDc7J4QDb7ez9dRqJhifRVBgNj5XkwZ1s3MiWKpm56rJcEF7CRS4jc+VpEDePQUBDFmzDpWk2TAJ0K7IYFwlqQqYwD4scxWNoG8+pbuHKVSR4oOKdBs+FatorAAF/s25inoB+vn+YUw1tBJguLL1HyUR23z/+rmCRhHGRDZ+kFoR6JsP0v8ZPar7N36UZFSRqxUhV9F1EIBdhlRFcy+AilyjCHMVpVGAfv47EpUA3ZLvXqyjp4YPKjL1kPCCOo5KgCkwKRFiJYXpzk0ihEryzw1fsw487UqC249Kgtd8mIgmSOhRy84IsD1nGvOhmi9bPhjHoiDhCfVsrQQ+k1gRbEXN5z1f82I5FCQ8oabtrqPD/pIonATLa1Vl4/ngNYOBhBZ1Ha97vuHZljdOEly+VRbMbqDD6zmV1joIuGxR3eow0CHquTAHCRXqO5tDQ9ecdC7KQMIdajyZc8OG4TDlgvQgwQ51nsxhYMNwmHIxegUBd6j1ZD6v2DAc9FyIGSDgDvWep+c9G4aTiUV4CLgoVL25+o4MTbjY9+sDBLxsUZl9D/QzgFgIonk2DRfw+qzTOxkN/sV+Q7FjC7QZyEmuXqlxwK89AHWbY4wFILvwsiXD4K92fgflIODpFWUqNY4dfm2BdrzOMSZ5ej01+I9dr9RTCOHdgNletO6ogK292PkPKQsBTxZFTtOE/zr0Sj0Gn0RRtsOfbabpybv8XsDs/dOkOiZga68+/AGtwX/zHiW2RuMPd5N+cF4MZfGend55l98LQAjxQfWqHWiAjV6HGOd/0appAv01+h8osTUa7zmYtfUi9B7v3ZhnG94PwBznmK+/tCPGflyVBjSTUo8p5ZwwjmMH2mv+TZpTQqHa4r07+2Qin9EosHMPOhfwb3NCmtNFTVNX1q/NOLbtCNIlpjjPKL73KHFwV5u5Wo9CNwcdS/rHGMKj2ZZGfAv+Oygni0L3zyYxjQ7FNuHkywOQ3NmY5h6c/HeQ2gHFDgcXeEaHko+LYQCy8y978U4WtB4lN/7sWUaHsvdPmgLI9uIH0S4avB6FHy+eY3QofftkOICkd3u5FvsNvB7FHy+eofcof794EsDcfCPUdQtiB8LjxZfXejAeT5EFwZ0bkU5fQKwbBjifirPgDDqzIOnTINDLDxCPGpTNweTCpo6kOWgazPrUibMDtQfp8GzLai1YNw+BBlmfGmF2oLag3V9jUQa8zmYaJBtkOYC6n3jgdUn9lqh7djyI5y+SnN+4LIi7tS/Igtn4zAP3tJLj9grqfsUEa8vpV1TNzhFBHxoxJnBbUHdrX4wGt/ZMs7dSHMDdbrhg7Z3ongIR3HMnw+1IpkHePaZCJrBPVNBeBov7Bu1rKH7qJLi9kfUN3RQKUXTNU2SCtRJYkCvQd4+piB78iss/N3zL17sHFYtQ9w5h4vOopF6A1YXLaz5H1wnQz0UoAdBmqvjUsF3BriDgcC2ilWBMVIiKLdK1EqCfSxgkYOcLdOPdEFFFrjSyRboPdFRkV/xFXRqu+W9KGrnS35T/MY186m5ch9qrxFREbgUYE1lu79woQi4ijQK0mSyNXJGuhYQX3IvVhSy3VAvoRxHmu4ExcaWRKvEpEWIhn5q/ZQiTACpy5dvAFOnaQYIr7scUuBDVPZsgoS9m3fA168DlNdEZ9FqEUAq85sNElh47nkDXdxJcUKwzAmzPmQrO0CxvdBYS2nLmy5YPxnH554bFgb1VElx+lgNrJfCZKnvD4uksJLQoeL5s+Zqdo4LbNRyfwd5vJLj8LAnmc0MHE2aq7A3FcqTzEHDZo+jsLF/z2VDBPg8MGuwGEloU7j5t6LB5CFTQnuD8k22cJLh8Kw36c0cHb2eqdDgWd/0C8tZBwNsexWd9auiak85M8A/bwpY92D0EXLYgTM7TYdgZKujnTVHLBuweAi4bUIbzkQ7btaaCfhkKWjZg9xBw2YDUX4502K41VZ5222KWDdg9BFw2oPWH2LBhu9ZMyGa9LeS2BXnrIeB1D+KkTwMbtrspEwH6wTUlnF9BPjoIeP4C6nna7dmwOujEBO8Pw7st+ifIzRb8i/4JdnN1Axm6cLZMSPrJdu9zegW5chDw9AoBo3lyDRfwutORCPB2bbs/d7Ig720H/pOFkN6ubceFzj/YSAR4uzbDH7l5D3KlV6BfgoWcOdinaWqYgJV98J4I8G6ZptV/uIX4DdyjMqBfQvwKYUMIazWuiICVfg4h8ABzCBfV933/S0RM4FbjqEC+pDnF7xA5xHTp+77/pR3boTigmabpElOOJL/GeZ7nX2jbUaHvgRVYr2lOGSmrnCD9PM/zLznl6ziqqSnr15UaW4XbjDSnlMvjbtWkGjAvIQb8Y8R9TSmGT2ZqCvt912Psx/EWQrobSitwX/xX3Pfk4tp2BP84TNODC/keKAvyk0MF5mDXtmMBMJi1d1m60YH8YlGL3j2/8gCNebZBNrsB92K/oR6zO/uBB+jcg85y9QHklz3qMumXLRGwOegolXIgP3xFdeqHIxOacPIy6S3Id6hRf/YNEXBcjER6BfId6jS4c8OE/ZOWR69AvkOtJuepsH100owa5DvUazgfqfDlEmRpA8gPqFm/7KngXRIlgPzytWpgdgNVc9CSaJAvW1Su9lQYnq0crWXTqN10fqWCCbMYFuSXH9UDu+uomhcrRb9h06hga6mwvcxCGJCfUMN+3VHBWhnaic1WEazl2p6zCBPIz6hjv+6oYFwN+EpCmLi0l6Bdkd2+1ZLXXN1jEkCBPKCW02NHBe0FGD9KCBPXFARQbLGeouLqHma+nuyCjxLGxNeRxYrKD82d60E+VxTS+Nds7rnaTEefPk73P9cUe5vvnYofpn6mm3uyD3TCvWtzRfVkEi4N15j+oqTxw7QiSwJE9VFSIM8CpJGre5g/SlGAqLigYjVNbEmAfNlwTaGW+obsCgnDxLW55EqaQB5kWDdU0L6SDJsXIQfNZVwdTSC/QkZnuLpPsYoMmxNivmypYG0NKZDf3oSAtVyrx1BBns1ByvmypYKzuXoMyG9fxYB9aai6Z1c7vWbTkHP2lgqv51Q5AeRnSOqeVlQIOleNA/ntVRRMh46q+6xrRjdkyxayZn1qmLB51vUybUBuIG2ygQrbR1crowH5DvLG05EKX26uTvQe5DtI7A+xYcKXR10jZgD5DjIncxiYsH3WuTZaB/JFQepkXjZM2HzWqS6UA/l5D7mzfnAdEbpwdrkeWjuAe9E/IXqwz6bhAV6fbaiE1mhwL+4I6bPzO9PwoHOPLlRArzW4b/6Ie5ide542NMDKPDmf71o7TQOolxC+4W76cFZK9R0H0Bl9iWG+T/04qgHES5pT/I47G2Ocb32Pse37VWkANmp6THGekZN8fa8wtr/pO5AuKeYERBC34+9SJvjtPCPleb4oNQ2FAWhG1fdox1+uc0oxS9ROSoH+6uN3cE9qXOEfx/aSYmD45xjDMpmusH8/9OOobj7MwuhpBfqb9yCfpi3+42pU09kHGgBzcE9mRfPbQU837+VotQH/zb6Bu9UGf3ajn7zLNACCe/AdE4CVXlsvhLbgX+xXcLdG4893euccERD1zjRUQGefTBRg9BDwvAe51Xjfxq51IgJsPAxcwOCuNrPZDfgX/RPco8f7D/5smZD0y5YM2O90omoDBLxuQW62KPJ1PWUiQD8c2dCFgycaPQQ8HcHdOpS6+qxnJvjLkQ04LoZmdBDw9AbuNqDc4aQTE/zlSIf9kyYZHQQ8vYG7DSi5OeuZCf5ypMN2rSlGBwHPX8HdBpTdnHRmgr+90mH76AhaDwGvX0DuUPrwoqlgnzZ0+HIJ5QUIuGxBblH+5pOjgj40dPB2Ls1CQg3ycUOAL6dElXXgaw66sHEjwfknWwClM1SIy4YOqydXloeAyx7kFpyrT54K5nNDB+vnkjQkdCBvNQms5ZqD4WtebEGtleB2ZHNg7daeCm7X0GF7mcvRkNCCvFU0MI4rB80Ha8sxEixvbBq8w0OigjMCbM+5lAkSerAbImjPNS8DH7QvRdfACOYpcMFrAYwrpF1JcP3JNlF1j4krTAJ0j6mMCRJGsCsqqMg1LwMfVCxDiRDoVvcMUQkwhfsR2RS4+5ksjQKsLkW0jQRXsPdkw5Vs7gXAmEoYIWG6c2gzV1QS9PO9mOlatjFxyTimEtoqGNnoLysB7iffB1DFEpQI/D1bP9+/eu7+mvX4X0yikmBmU3Sry/2bi5Dx7mFMXHN/J3IrAf2KT8W7l4tIowAXtgn8U+BKowDpXsz3b3XNVHN/J/LS8UWyVgkA7anSp4buhjKjuncTJDSOClHRxXtx+0lmReg+xRoKE10At4aM1lKFiS4Uki8bNk9mhVg9RKZ5GcjOKNVrstsPLgMpnWGCM2ShmPDUcTlQt3IMa8cU1g3V7a0YeE21fOXykNP6mSh7Q+VRrts1TA7UBoI2B00Et2uIlmNB2Tqi5Ug1biXB6tkQZW+ILEr2TwOPAXMbIOt+8Txwzx3N9a0oaE9z+c7UBkh7PEWebDyNQdnp/Eqy7EHcBsgbbKJBvO5JDijdPg8cGsS9h8DN2Xsa2OeB4nosDurcMHwG8eghcuMuniabQ0OwbFB+ns5NeafvRGYLqY8PJpMgmVjesgFjMuemtNMbaHsPwbcvOpEgHY6lLRtwJnNuyjq9gdZOEL0LF5s54C/HspYNWJM5NyWd3sCqLcTfv3iXKeAPsSlo2YA3TeehnN1PcLZG4x42ZuddZkAyh6GY6xbMWT2/FnKbQNlO0wr3sjHmEkIuD8nstoUcjiC3FzeUcDii+HYcx7HDfd1M0zXGeS4M2SyuK+CmwR/N2jbvdTEodBx7hXb4De0tpZgTgLEf1ao0ACul+v6af0k5p3kuAQj22TTvtLgjRHRup7v3uNifKLFXkwL91Yef+Mc0p3iZpqkp7LdD+8vYtmP/kEKc3w/Z+Z1p3mFxR0iZnV9Pmz90Cw5FTnoA/eI8/nsI4VmvyvvX3Tipmw/5vYDs/NoMf+jq3iCqD5dpUs1/ucbwHUVqC/6b/Yo/7P2DXRH9utJr7/J7ATm4ZZpW/2WJMUDeHEJ87BXUb+Z5niMKnRz4F/cV7xjtg++ogMbsvMvvBWAO4TL2Yzv+JuU0f4fY8xwRf1Nw7yHgZY93jub5lQtozLOJ7/drmlNOv6lObSDgyze8e3aX0HABnb+ZXEK9egi4KBQZ9XkgA7Y7k6qtjRDwukWhWb1s2TAcbKy0NkDA6x7l6vWWDU04+SprAwS87lGyXm/ZgOPFV1gbIOCyQdl6t6LD8Rzqy0HAZYPSp88DHbxLtWUgoUHx2Rwauuakc12NWwnOP8pDCpYO3WddVx4CLnswuqcVHTYPoaYsJDTgNI4P3uR66icJLt9J0nXL17zYerKQ0ILVWj7sz3Mt9SsJLj9p5suWD9bWkoaEHrzWCrA950oyEtzeiObbig/G1dEECQOYvRZA+4+TpwqTAN1j+igt36nybeCD9jWkIGEAd5gEUPGjlMiiEmC45QoaKyCNAmBMFdSLEMlyK4GKFTRIsID9shKgzRUkYqITcUz1o0Tgn3sB/paK0OaPUaYTcbh+jNpcAR/lhL+iuZUg18ClgtIowV/0RDf3AuQauqwEyDWQamjuBYh0aRRgrqGo+K6gz0vHlz5GkQ9R0S3fa2h+6D4CEVUcJrblrQZCHXnNFiDgvAwfovQwkDkJ4AzZGZXsDNf1pwhh3XD5WvLrjspBxBw01e1bLcFaptubDHCGyqKa/boj0hByPu+Jbm/1BO15zhDTvjQ8GhUdlw3L8ipHdpbmjKrWnzsSA0Hd04pk2ddV1oHj9FMSTKeGQ6Oy0+HIcP0CUbMOFAdUt1/25V33EDaejgTnt/qCedqWdt1DXP+wLe76BTWu19uyrnsIrNfbwq571Ll+OJZ03UNk/bQv6rpHrftTaIo5fYHQZjkWdPqCeo/6tCpj0ZDbH0JXyssP1HyenmxTwHkPyZN+2RZx1ah9517273WxED6bm+/ebbFvqP9sz0Y373CxPyF/1GvbvcvijvgYzi6s9erP3ILDnfR2bYY/dvNHfBxz8NdJqe7fLSmGH7ij3j1oNfyBJYRv+GDmEONNtePvcpp/4O4mHxc1jmPzT5c5xe/4oMacfne355hSWvoeQE74Cz7P+P/+/1/IAVZQOCAcAwAAcEYAnQEqaQFjAT5RIo5FI6IhFd+cADgFBLS3cLRvMv8n/AD9AP4B8g1DtRPAH6AfwD9+KHeA/gH4AfoB/APUH9j/gH4AfoB/AOgA/AD9AP4Ba/+UBfgH4AXumjP6AfwD8AP0A/gH7+9/gzRxzXhx+OgTr3U3UMR4PY0FinV6LZfRpvhOdQ3zjnE6eFjRH0HR51R51R51R51saCxndWhEoaE3vW6vW9EfID2OEhCZJbdmBCrlBdTkIgIFjaJYh3+3KSnRrRnXPxg/K1+Q196CJwxexa4wT7v8WF5w1b8FvRpvhBa1PE2oci1jDiL63ogBa1PE3WtSE/puNnc0hc0CkTecaD1KB3Fr4N4RUrvTWXfXdIYI0hNbxEBAsbRLEPBMhS4MHs6SIYwdXjFcrO5I8k8H0Lbd2h7kho+ttIqV0cGLnSI/9S10DId94WrREiexQexQexQexQexoLGb/d/39VylmDmHL8tj8DLjwGz1qPrtibM28okTyHjVTJHCDhi8BBz13As7tqGZAcqvcJOYiU7dx38XICUgqBbIzSFzQwjmwjmwjmSJTOz1/XR/SR0yRrdSFABML6HzDPYkVdfspwRzkC5bpLlo05BjqNeApm41QxJagn3f3mH7U8R/9mhzyIT/tUdgjPY0C5pBzXW7r1Sjfl6rREiexmwjmwjmwjmwjoLGiPjPws6UcGksQ8EyymA1LW4Bj63cVwY0R9B0xS6g+95y2zMmYaIbQld6I+g9jQWNEfQexoLGh2AA/XLLO8cxaVb79E0aE1S4cagfSdZWE5/+W2hc9AEd+hy+svD4Lv+h4n9GI/omi7siLhDWCITJ+jP2GfRj5Z0z3bX7VP9Gk5TBbLo+hwO0yDv0PE/opr7+caETb6J0xV6lnxrl1q1e5fMX0UpeItvonL2whnH/+X6KXRZOqaEsdx36M/YwbsUjbo2d4BirbVKPL6NJyq77KEoGDo+jFik1sbBuuq8ylBr+i5DIII/ox8s6Z7tr/S/Rn6TDb4O/0Y1STPo0nKYLRAOj6Knn0VAkl0SfRh2zqZm2/RjVGAAAAA==" alt="Nodus Flex Center">
+                <div class="logo-text">
+                    <h1>Analizador de Contratos</h1>
+                    <span>Powered by Nodus Flex Center</span>
+                </div>
+            </div>
+            <div class="status-pill">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">Sin conexión</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <div class="hero-section">
+            <h2>Analiza tus contratos al instante</h2>
+            <p>Detecta errores ortográficos, cláusulas incompletas, fechas faltantes y datos sin llenar con inteligencia artificial</p>
+        </div>
+
+        <div class="features-row">
+            <div class="feature-card">
+                <div class="feature-icon">📝</div>
+                <h4>Ortografía y Gramática</h4>
+                <p>Detecta errores de escritura y redacción</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📋</div>
+                <h4>Cláusulas y Estructura</h4>
+                <p>Valida el contenido legal del contrato</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📅</div>
+                <h4>Fechas y Datos</h4>
+                <p>Identifica campos vacíos o incorrectos</p>
+            </div>
+        </div>
+
+        <div class="setup-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                    </div>
+                    <h3>Conectar con OpenAI</h3>
+                </div>
+                <div class="input-row">
+                    <input type="password" id="apiKey" class="input" placeholder="Ingresa tu API Key de OpenAI">
+                    <button class="btn btn-accent" onclick="verifyApiKey()">Verificar</button>
+                </div>
+                <div class="message" id="apiMessage"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                    </div>
+                    <h3>Subir Contrato</h3>
+                </div>
+                <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+                    </div>
+                    <h4>Arrastra tu archivo aquí</h4>
+                    <p>o haz clic para seleccionar</p>
+                    <div class="file-badges">
+                        <span class="badge">PDF</span>
+                        <span class="badge">DOCX</span>
+                        <span class="badge">TXT</span>
+                    </div>
+                </div>
+                <input type="file" id="fileInput" accept=".pdf,.docx,.doc,.txt" onchange="handleFile(event)">
+                <div id="fileInfo"></div>
+            </div>
+        </div>
+
+        <div class="analyze-section">
+            <button class="analyze-btn" id="analyzeBtn" onclick="analyzeContract()" disabled>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                Analizar Contrato
+            </button>
+        </div>
+
+        <section class="results-section" id="resultsSection">
+            <div class="results-header">
+                <h2>
+                    <svg width="24" height="24" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+                    Resultados del Análisis
+                </h2>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('issues', this)">Problemas</button>
+                    <button class="tab" onclick="switchTab('document', this)">Documento</button>
+                    <button class="tab" onclick="switchTab('corrected', this)">Corregido</button>
+                </div>
+            </div>
+            <div class="results-body">
+                <div class="tab-content active" id="issuesTab">
+                    <div class="stats-row">
+                        <div class="stat-box errors">
+                            <div class="stat-number" id="errorCount">0</div>
+                            <div class="stat-label">Errores</div>
+                        </div>
+                        <div class="stat-box warnings">
+                            <div class="stat-number" id="warningCount">0</div>
+                            <div class="stat-label">Advertencias</div>
+                        </div>
+                        <div class="stat-box info">
+                            <div class="stat-number" id="infoCount">0</div>
+                            <div class="stat-label">Sugerencias</div>
+                        </div>
+                    </div>
+                    <div class="issues-list" id="issuesList"></div>
+                </div>
+
+                <div class="tab-content" id="documentTab">
+                    <div class="document-view" id="documentView"></div>
+                </div>
+
+                <div class="tab-content" id="correctedTab">
+                    <div class="download-row">
+                        <button class="btn btn-accent" onclick="downloadCorrected()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                            Descargar Documento Corregido
+                        </button>
+                    </div>
+                    <div class="document-view" id="correctedView"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2025 <a href="#">Nodus Flex Center</a> • Analizador de Contratos con IA</p>
+    </footer>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let apiKeyValid = false;
+        let uploadedContent = '';
+        let uploadedFileName = '';
+        let analysisResults = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const saved = localStorage.getItem('nodus_api_key');
+            if (saved) document.getElementById('apiKey').value = saved;
+            setupDragDrop();
+        });
+
+        function setupDragDrop() {
+            const zone = document.getElementById('uploadZone');
+            ['dragenter','dragover','dragleave','drop'].forEach(e => {
+                zone.addEventListener(e, ev => { ev.preventDefault(); ev.stopPropagation(); });
+            });
+            zone.addEventListener('dragenter', () => zone.classList.add('dragover'));
+            zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+            zone.addEventListener('drop', e => {
+                zone.classList.remove('dragover');
+                if (e.dataTransfer.files.length) processFile(e.dataTransfer.files[0]);
+            });
+        }
+
+        async function verifyApiKey() {
+            const key = document.getElementById('apiKey').value.trim();
+            const msg = document.getElementById('apiMessage');
+            const dot = document.getElementById('statusDot');
+            const txt = document.getElementById('statusText');
+
+            if (!key) {
+                showMsg(msg, '❌ Ingresa una API Key', 'error');
+                return;
+            }
+
+            localStorage.setItem('nodus_api_key', key);
+            showMsg(msg, '⏳ Verificando conexión...', 'loading');
+
+            try {
+                const res = await fetch('https://api.openai.com/v1/models', {
+                    headers: { 'Authorization': 'Bearer ' + key }
+                });
+
+                if (res.ok) {
+                    showMsg(msg, '✅ Conexión exitosa', 'success');
+                    dot.classList.add('connected');
+                    txt.textContent = 'Conectado';
+                    apiKeyValid = true;
+                } else {
+                    const err = await res.json();
+                    showMsg(msg, '❌ ' + (err.error?.message || 'API Key inválida'), 'error');
+                    dot.classList.remove('connected');
+                    txt.textContent = 'Error';
+                    apiKeyValid = false;
+                }
+            } catch(e) {
+                showMsg(msg, '❌ Error de conexión', 'error');
+                dot.classList.remove('connected');
+                txt.textContent = 'Sin conexión';
+                apiKeyValid = false;
+            }
+            updateBtn();
+        }
+
+        function showMsg(el, text, type) {
+            el.textContent = text;
+            el.className = 'message show ' + (type || '');
+        }
+
+        function handleFile(e) {
+            if (e.target.files.length) processFile(e.target.files[0]);
+        }
+
+        async function processFile(file) {
+            uploadedFileName = file.name;
+            const ext = file.name.split('.').pop().toLowerCase();
+
+            try {
+                document.getElementById('uploadZone').style.opacity = '0.6';
+                
+                if (ext === 'txt') {
+                    uploadedContent = await file.text();
+                } else if (ext === 'pdf') {
+                    uploadedContent = await extractPdf(file);
+                } else if (ext === 'docx' || ext === 'doc') {
+                    uploadedContent = await extractDocx(file);
+                } else {
+                    alert('Formato no soportado');
+                    return;
+                }
+
+                showFile(file);
+                updateBtn();
+            } catch(e) {
+                alert('Error al procesar: ' + e.message);
+            } finally {
+                document.getElementById('uploadZone').style.opacity = '1';
+            }
+        }
+
+        async function extractPdf(file) {
+            const buf = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+            let text = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                text += content.items.map(x => x.str).join(' ') + '\n';
+            }
+            return text;
+        }
+
+        async function extractDocx(file) {
+            const buf = await file.arrayBuffer();
+            const result = await mammoth.extractRawText({ arrayBuffer: buf });
+            return result.value;
+        }
+
+        function showFile(file) {
+            const zone = document.getElementById('uploadZone');
+            zone.classList.add('has-file');
+            
+            const info = document.getElementById('fileInfo');
+            const size = (file.size / 1024).toFixed(1) + ' KB';
+            
+            info.innerHTML = `
+                <div class="uploaded-file">
+                    <div class="file-icon-box">
+                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                    </div>
+                    <div class="file-details">
+                        <h5>${file.name}</h5>
+                        <span>${size} • ${uploadedContent.length.toLocaleString()} caracteres</span>
+                    </div>
+                    <button class="remove-btn" onclick="removeFile()">✕</button>
+                </div>
+            `;
+        }
+
+        function removeFile() {
+            uploadedContent = '';
+            uploadedFileName = '';
+            document.getElementById('uploadZone').classList.remove('has-file');
+            document.getElementById('fileInfo').innerHTML = '';
+            document.getElementById('fileInput').value = '';
+            updateBtn();
+        }
+
+        function updateBtn() {
+            document.getElementById('analyzeBtn').disabled = !apiKeyValid || !uploadedContent;
+        }
+
+        function switchTab(name, btn) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(name + 'Tab').classList.add('active');
+        }
+
+        async function analyzeContract() {
+            const key = document.getElementById('apiKey').value.trim();
+            if (!key || !uploadedContent) return;
+
+            const btn = document.getElementById('analyzeBtn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner"></div> Analizando...';
+
+            const prompt = `Eres un experto revisor de contratos legales mexicanos. Analiza el siguiente contrato y encuentra TODOS los problemas.
+
+CONTRATO A ANALIZAR:
+${uploadedContent.substring(0, 12000)}
+
+BUSCA Y REPORTA:
+
+1. **ERRORES ORTOGRÁFICOS**: Palabras mal escritas, acentos faltantes, errores de tipeo
+2. **ERRORES GRAMATICALES**: Concordancia, puntuación, redacción confusa
+3. **DATOS SIN LLENAR**: Campos como NOMBRE, FECHA, MONTO, RFC, DIRECCIÓN que estén vacíos o con placeholders
+4. **FECHAS INCORRECTAS**: Fechas en formato incorrecto, fechas imposibles, fechas faltantes
+5. **CLÁUSULAS INCOMPLETAS**: Secciones que parecen cortadas o sin terminar
+6. **MONTOS Y NÚMEROS**: Cantidades escritas incorrectamente, inconsistencias entre número y letra
+7. **REFERENCIAS LEGALES**: Artículos o leyes citadas que podrían estar mal
+8. **INCONSISTENCIAS**: Contradicciones entre diferentes partes del contrato
+
+Responde ÚNICAMENTE con JSON válido:
+{
+  "errors": [
+    {
+      "type": "error|warning|info",
+      "location": "Ubicación específica",
+      "title": "Título breve del problema",
+      "description": "Descripción detallada",
+      "original": "Texto con error",
+      "suggestion": "Corrección sugerida"
+    }
+  ],
+  "stats": { "errors": 0, "warnings": 0, "info": 0 },
+  "correctedDocument": "Documento completo corregido",
+  "summary": "Resumen del estado del contrato"
+}`;
+
+            try {
+                const res = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+                    body: JSON.stringify({
+                        model: 'gpt-4o',
+                        messages: [{ role: 'user', content: prompt }],
+                        temperature: 0.1,
+                        max_tokens: 4096
+                    })
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error?.message || 'Error de API');
+                }
+
+                const data = await res.json();
+                const content = data.choices[0].message.content;
+
+                let results;
+                try {
+                    const match = content.match(/\{[\s\S]*\}/);
+                    results = match ? JSON.parse(match[0]) : null;
+                } catch(e) {
+                    results = {
+                        errors: [{ type: 'info', location: 'General', title: 'Análisis', description: content.substring(0, 800), suggestion: '' }],
+                        stats: { errors: 0, warnings: 0, info: 1 },
+                        correctedDocument: uploadedContent,
+                        summary: 'Análisis realizado'
+                    };
+                }
+
+                if (!results.stats) {
+                    const errs = results.errors || [];
+                    results.stats = {
+                        errors: errs.filter(e => e.type === 'error').length,
+                        warnings: errs.filter(e => e.type === 'warning').length,
+                        info: errs.filter(e => e.type === 'info').length
+                    };
+                }
+
+                analysisResults = results;
+                displayResults(results);
+
+            } catch(e) {
+                alert('Error: ' + e.message);
+            } finally {
+                btn.classList.remove('loading');
+                btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg> Analizar Contrato`;
+                updateBtn();
+            }
+        }
+
+        function displayResults(r) {
+            document.getElementById('resultsSection').classList.add('show');
+            document.getElementById('errorCount').textContent = r.stats.errors || 0;
+            document.getElementById('warningCount').textContent = r.stats.warnings || 0;
+            document.getElementById('infoCount').textContent = r.stats.info || 0;
+
+            const list = document.getElementById('issuesList');
+            if (r.errors && r.errors.length > 0) {
+                list.innerHTML = r.errors.map(e => `
+                    <div class="issue-card ${e.type}">
+                        <div class="issue-header">
+                            <span class="issue-badge">${e.type === 'error' ? '❌ Error' : e.type === 'warning' ? '⚠️ Advertencia' : '💡 Sugerencia'}</span>
+                            <span class="issue-location">📍 ${e.location}</span>
+                        </div>
+                        <h4>${e.title}</h4>
+                        <p>${e.description}</p>
+                        ${e.original ? `<div class="suggestion-box"><strong>Texto actual:</strong> "${e.original}"</div>` : ''}
+                        ${e.suggestion ? `<div class="suggestion-box"><strong>✅ Corrección:</strong> ${e.suggestion}</div>` : ''}
+                    </div>
+                `).join('');
+            } else {
+                list.innerHTML = `
+                    <div class="success-message">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                        <h3>¡Excelente!</h3>
+                        <p>No se encontraron problemas en el contrato.</p>
+                    </div>
+                `;
+            }
+
+            document.getElementById('documentView').textContent = uploadedContent;
+            document.getElementById('correctedView').textContent = r.correctedDocument || 'No disponible';
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function downloadCorrected() {
+            if (!analysisResults?.correctedDocument) { alert('No hay documento corregido'); return; }
+            const blob = new Blob([analysisResults.correctedDocument], { type: 'text/plain;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'contrato_corregido_' + new Date().toISOString().split('T')[0] + '.txt';
+            a.click();
+        }
+    </script>
+</body>
+</html>
