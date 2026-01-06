@@ -1051,7 +1051,12 @@
             btn.disabled = true;
             btn.innerHTML = '<div class="spinner"></div> Analizando...';
 
+            const today = new Date();
+            const currentDate = today.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+            
             const prompt = `Eres un experto revisor de contratos legales mexicanos. Analiza el siguiente contrato y encuentra problemas REALES.
+
+FECHA ACTUAL: ${currentDate} (Año 2026)
 
 IMPORTANTE: Este texto fue extraído de un documento Word/PDF, por lo que:
 - IGNORA problemas de espaciado o saltos de línea (son errores de conversión, no del documento original)
@@ -1066,11 +1071,28 @@ ${uploadedContent.substring(0, 12000)}
 BUSCA ÚNICAMENTE PROBLEMAS REALES:
 
 1. **ERRORES ORTOGRÁFICOS CLAROS**: Palabras obviamente mal escritas (ej: "contarto" en vez de "contrato", "articulo" sin acento)
-2. **DATOS SIN LLENAR**: Campos con placeholders evidentes como: "NOMBRE", "____", "XXXX", "[FECHA]", "$0.00", "00/00/0000", "COLOCAR", etc.
-3. **FECHAS CLARAMENTE INCORRECTAS**: Fechas imposibles como 30 de febrero, o años claramente incorrectos
-4. **CLÁUSULAS INCOMPLETAS**: Oraciones que terminan abruptamente sin sentido
-5. **MONTOS INCONSISTENTES**: Cuando el número y la cantidad en letra no coinciden (ej: "$5,000 (tres mil pesos)")
-6. **INFORMACIÓN CONTRADICTORIA**: Datos que se contradicen en diferentes partes del contrato
+
+2. **NOMBRES Y ABREVIACIONES INCORRECTAS**: 
+   - Razones sociales mal escritas o con abreviaciones incorrectas
+   - "S.A DE C.V" debería ser "S.A. DE C.V." (con puntos)
+   - "SA DE CV" debería ser "S.A. DE C.V."
+   - "S.C." vs "S.C" (falta punto)
+   - Nombres de empresa inconsistentes a lo largo del documento
+   - Verifica que el nombre de la empresa sea consistente en todo el contrato
+
+3. **DATOS SIN LLENAR**: Campos con placeholders evidentes como: "NOMBRE", "____", "XXXX", "[FECHA]", "$0.00", "00/00/0000", "COLOCAR", "0 (cero)", etc.
+
+4. **FECHAS INCORRECTAS**: 
+   - Fechas imposibles como 30 de febrero
+   - Años que no tienen sentido para un contrato actual (recuerda: estamos en 2026)
+   - Fechas de vigencia que ya pasaron si el contrato parece ser nuevo
+   - Fechas placeholder como "00 de enero de 2019"
+
+5. **CLÁUSULAS INCOMPLETAS**: Oraciones que terminan abruptamente sin sentido
+
+6. **MONTOS INCONSISTENTES**: Cuando el número y la cantidad en letra no coinciden (ej: "$5,000 (tres mil pesos)")
+
+7. **INFORMACIÓN CONTRADICTORIA**: Datos que se contradicen en diferentes partes del contrato
 
 NO REPORTES:
 - Espacios dobles o triples (es error de conversión)
